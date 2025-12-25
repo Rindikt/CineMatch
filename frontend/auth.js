@@ -32,7 +32,7 @@ export async function login() {
 
     try {
         const formData = new URLSearchParams();
-        formData.append('nickname', email);
+        formData.append('username', email);
         formData.append('password', password);
 
         const data = await fetchData('/users/token', {}, 'POST', formData);
