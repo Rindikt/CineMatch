@@ -109,6 +109,7 @@ class MovieRead(MovieBase):
     tagline: str|None = None
     description: str|None = None
     runtime_minutes: int|None = None
+    user_progress: list['MovieProgressRead'] = []
 
     # Рейтинги
     rating: float

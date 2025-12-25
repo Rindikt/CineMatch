@@ -21,18 +21,31 @@ class MovieService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_movie(self, movie_id: int):
+    async def get_movie(self, movie_id: int, current_user:Optional[UserModel]=None):
         """
         Получает детальную информацию о фильме по его внутреннему ID.
         Осуществляет вложенную загрузку связанных данных: актеров (с ролями)
         и жанров фильма.
         """
-        movie = await self.db.scalar(
-            select(Movie)
-            .options(selectinload(Movie.actors).selectinload(MovieActor.actor),
-                     selectinload(Movie.genres).selectinload(MovieGenre.genre),)
-            .where(Movie.id == movie_id)
+        stmt = select(Movie).where(Movie.id == movie_id)
+
+        if current_user:
+            stmt = stmt.outerjoin(
+                UserMovieProgress,
+                (UserMovieProgress.movie_id == Movie.id) &
+                (UserMovieProgress.user_id == current_user.id)
+            ).options(contains_eager(Movie.user_progress))
+        else:
+            # Для гостей просто подгружаем пустой список (или вообще не грузим)
+            stmt = stmt.options(selectinload(Movie.user_progress))
+
+        stmt = stmt.options(
+            selectinload(Movie.actors).selectinload(MovieActor.actor),
+            selectinload(Movie.genres).selectinload(MovieGenre.genre)
         )
+
+        result = await self.db.execute(stmt)
+        movie = result.unique().scalar_one_or_none()
         if not movie:
             raise ValueError(f'Фильм с id {movie_id} не найден')
         return movie
@@ -89,7 +102,7 @@ class MovieService:
 
         final_stmt = base_stmt.options(
             selectinload(Movie.genres).selectinload(MovieGenre.genre),
-            selectinload(Movie.actors)
+            selectinload(Movie.actors),selectinload(Movie.user_progress)
         )
 
         final_stmt = final_stmt.order_by(desc(Movie.rating))

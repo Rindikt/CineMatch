@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException,status
+from fastapi import APIRouter, Depends, HTTPException,status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,4 +55,24 @@ async def get_me(db: AsyncSession = Depends(get_db),
         return result
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.post('/refresh')
+async def refresh_token(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Обновляет access_token, используя refresh_token из заголовка или тела.
+    """
+    user_service = UserService(db=db)
+    # Предполагаем, что токен пришел в заголовке Authorization: Bearer <REFRESH_TOKEN>
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+
+    refresh_token = auth_header.split(" ")[1]
+
+    try:
+        new_tokens = await user_service.refresh_tokens(refresh_token)
+        return new_tokens
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
 

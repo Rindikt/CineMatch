@@ -4,33 +4,50 @@
     <meta charset="UTF-8">
     <title>Детали фильма</title>
     <link rel="stylesheet" href="main.css">
+    <style>
+        /* Быстрые стили для центрирования, чтобы не лезть в main.css */
+        .main-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: sans-serif;
+        }
+        .movie-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr; /* Левая колонка строго 300px */
+            gap: 40px;
+            margin-top: 20px;
+        }
+        .left-side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .right-side {
+            display: flex;
+            flex-direction: column;
+        }
+        @media (max-width: 800px) {
+            .movie-grid { grid-template-columns: 1fr; }
+            .left-side { align-items: center; }
+        }
+    </style>
 </head>
 <body>
+    <div class="main-wrapper">
+        <a href="index.html" class="back-button" style="text-decoration: none; background: #007bff; color: white; border: none;">← Назад к списку</a>
 
-    <a href="index.html" class="back-button">← Назад к списку</a>
-
-    <div id="user_actions_section" class="user-actions" style="display:none; margin: 20px auto; max-width: 800px; padding: 15px; background: #f4f4f4; border-radius: 10px; border: 1px solid #ddd;">
-        <h4 style="margin-top:0;">Мой прогресс</h4>
-        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-            <select id="status_select" style="padding: 8px; border-radius: 4px;">
-                <option value="">-- Выберите статус --</option>
-                <option value="watching">Смотрю</option>
-                <option value="completed">Просмотрено</option>
-                <option value="dropped">Брошено</option>
-                <option value="planned">Запланировано</option>
-            </select>
-
-            <div id="rating_container">
-                <input type="number" id="personal_rating" min="1" max="10" placeholder="Оценка (1-10)" style="padding: 8px; width: 120px; border-radius: 4px; border: 1px solid #ccc;">
+        <div class="movie-grid">
+            <div class="left-side">
+                <div id="movie_poster"></div>
+                <div id="user_actions_section"></div>
             </div>
 
-            <button id="save_progress_btn" style="padding: 8px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Сохранить</button>
-            <span id="save_status_msg" style="font-weight: bold;"></span>
+            <div class="right-side" id="movie_info_content">
+                </div>
         </div>
-    </div>
 
-    <div id="movie_detail_container">
-        <p>Загрузка...</p>
+        <p id="error_message" style="color: red; text-align: center;"></p>
     </div>
 
     <script type="module" src="movieDetail.js"></script>

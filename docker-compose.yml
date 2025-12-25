@@ -91,5 +91,19 @@ services:
         condition: service_started
     command: pytest tests/
 
+  flower:
+    build: .
+    container_name: cinematch_flower
+    command: celery -A worker.celery_app flower --port=5555
+    ports:
+      - '5555:5555'
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *common-env
+
 volumes:
   postgres_data:
