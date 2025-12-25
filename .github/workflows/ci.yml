@@ -30,10 +30,7 @@ jobs:
       # Мы используем твой docker-compose.yml, чтобы среда была идентичной
       - name: Build and Run Tests
         run: |
-          docker compose up -d postgres redis
-          # Ждем готовности базы, прежде чем запускать тесты
-          docker compose run --rm api sh -c "pip install aiosqlite && pytest"
-          docker compose down
+          docker compose up --build --exit-code-from tests tests
 
       - name: Stop services
         if: always()
