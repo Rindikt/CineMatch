@@ -17,6 +17,14 @@ TestingSessionLocal = async_sessionmaker(
     bind=engine,
     expire_on_commit=False)
 
+import pytest_asyncio
+
+@pytest.fixture(scope="session", autouse=True)
+async def cleanup_engine():
+    yield
+    await engine.dispose()
+
+
 @pytest.fixture
 async def db_session():
     async with engine.begin() as conn:

@@ -22,3 +22,4 @@ async def test_register_user_success(client):
 async def test_profile(type_user, expected_status):
     response = await type_user.get("/users/me")
     assert response.status_code == expected_status
+
