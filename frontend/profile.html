@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мой Профиль - CineMatch</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        /* Стили специально для таблиц профиля (как на твоем скрине) */
+        .profile-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-bottom: 30px;
+        }
+        .profile-table th {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .profile-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .status-header {
+            background: #e9ecef;
+            padding: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← На главную</a>
+    <h1 id="user_nickname">Загрузка профиля...</h1>
+
+    <div id="profile_content">
+        </div>
+
+    <script type="module" src="profile.js"></script>
+</body>
+</html>

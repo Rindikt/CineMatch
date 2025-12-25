@@ -1,0 +1,93 @@
+version: '3.8'
+
+x-common-env: &common-env
+  DB_URL: ${DB_URL}
+  CELERY_BROKER_URL: ${REDIS_URL}
+  CELERY_RESULT_BACKEND: ${REDIS_URL}
+  HTTP_PROXY: ${HTTP_PROXY:-http://host.docker.internal:80}
+  HTTPS_PROXY: ${HTTPS_PROXY:-http://host.docker.internal:80}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: cinematch_redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    container_name: cinematch_api
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *common-env
+      CORS_ORIGINS: http://localhost:8081,http://127.0.0.1:8081
+
+  celery_worker:
+    build: .
+    command: celery -A worker.celery_app worker -l DEBUG
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *common-env
+
+  celery_beat:
+    build: .
+    command: celery -A worker.celery_app beat -l INFO
+    depends_on:
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *common-env
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cinematch_frontend
+    ports:
+      - "8081:8080"
+    depends_on:
+      - api
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pytest_runner
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: pytest tests/
+
+volumes:
+  postgres_data:

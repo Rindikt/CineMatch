@@ -1,0 +1,188 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+/* Основной контейнер деталей */
+.detail-view {
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Стили для постера фильма (movieDetail.html) */
+.detail-view > img {
+    float: left;
+    margin-right: 20px;
+    max-width: 250px;
+    height: auto;
+    border-radius: 5px;
+}
+
+/* Стили для контента фильма */
+.movie-info-content {
+    overflow: hidden;
+}
+
+h2 { margin-top: 0; }
+h4 { border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px; }
+
+.error { color: red; font-weight: bold; }
+
+/* ------------------------------------------- */
+/* --- СТИЛИ ДЛЯ СТРАНИЦЫ АКТЕРА (actor_detail.html) --- */
+/* ------------------------------------------- */
+
+/* Контейнер для фото и текстовой информации */
+.actor-header-flex {
+    display: flex;
+    gap: 20px; /* Расстояние между фото и текстом */
+    align-items: flex-start; /* Выравнивание элементов по верху */
+    margin-bottom: 20px;
+}
+
+/* Стили для контейнера фото */
+.actor-info-left img {
+    max-width: 250px;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* Стили для текстовой информации */
+.actor-info-right {
+    flex-grow: 1; /* Занимает оставшееся пространство */
+}
+
+/* Стили для списка фильмов */
+.movie-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.movie-card-small {
+    width: 150px; /* Фиксированный размер для карточек фильмов */
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+}
+
+.movie-card-small img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.movie-card-small .no-poster {
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 225px; /* Сопоставимо с размером постера */
+    color: #666;
+    font-size: 0.9em;
+    border-radius: 4px;
+}
+
+/* ------------------------------------------- */
+/* --- НОВЫЕ СТИЛИ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ (index.html) --- */
+/* ------------------------------------------- */
+
+/* Основной контейнер списка */
+.results {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+/* Карточка фильма */
+.movie-card {
+    width: 100%;
+    display: flex;
+    flex-direction: row; /* Горизонтальное расположение */
+    align-items: flex-start;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: white; /* Изменил на белый для лучшего контраста */
+}
+/* Контейнер для постера (фиксированный размер) */
+.poster-container {
+    width: 80px; /* Фиксированная ширина */
+    margin-right: 15px;
+    flex-shrink: 0;
+    text-align: center;
+}
+/* Само изображение */
+.movie-card img {
+    max-width: 100%;
+    height: auto;
+    max-height: 120px; /* Ограничение высоты */
+    object-fit: cover;
+    border-radius: 3px;
+}
+.no-poster {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    color: #666;
+    font-size: 0.8em;
+    border-radius: 3px;
+}
+
+/* Контейнер информации (заполняет оставшееся место) */
+.movie-info {
+    flex-grow: 1;
+}
+.movie-info h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+.movie-info p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+
+/* Стили для контролов пагинации (уже были в вашем файле, но для полноты оставлю) */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.pagination-controls button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+.pagination-controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

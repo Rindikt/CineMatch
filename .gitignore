@@ -1,0 +1,33 @@
+# Виртуальное окружение Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# IDE files (например, PyCharm/VS Code)
+.idea/
+.vscode/
+
+# Зависимости Python
+pip-wheel-metadata/
+
+# Логи, артефакты сборки, временные файлы
+*.log
+dist/
+build/
+*.egg-info/
+
+# Docker build artifacts
+.dockerignore
+
+# База данных и медиафайлы, которые не должны быть в Git
+# Если вы используете SQLite:
+*.db
+*.sqlite
+*.sqlite3
+
+# САМОЕ ВАЖНОЕ: ФАЙЛЫ КОНФИГУРАЦИИ С СЕКРЕТАМИ
+# Мы будем использовать файл .env для секретов
+.env
+.env-db
+.env.local
