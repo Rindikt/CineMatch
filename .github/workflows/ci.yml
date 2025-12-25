@@ -30,7 +30,7 @@ jobs:
       # Мы используем твой docker-compose.yml, чтобы среда была идентичной
       - name: Build and Run Tests
         run: |
-          docker compose up --build --exit-code-from tests tests
+          docker compose up --build --exit-code-from tests --abort-on-container-exit tests
 
       - name: Stop services
         if: always()
