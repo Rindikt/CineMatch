@@ -1,0 +1,88 @@
+name: CineMatch Orchestrator (CI/CD)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 🧪 Run Integrated Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 1. Создаем .env файл для Docker Compose
+      # Мы используем те же переменные, что и в твоем локальном проекте
+      - name: Create .env file
+        run: |
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "DB_URL=postgresql+asyncpg://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.POSTGRES_DB }}" >> .env
+          echo "REDIS_URL=redis://redis:6379/0" >> .env
+          echo "TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}" >> .env
+
+      # 2. Поднимаем инфраструктуру (Postgres, Redis, API) и запускаем тесты
+      # Мы используем твой docker-compose.yml, чтобы среда была идентичной
+      - name: Build and Run Tests
+        run: |
+          docker compose up -d postgres redis
+          # Ждем готовности базы, прежде чем запускать тесты
+          docker compose run --rm api pytest
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
+
+  build_push:
+    name: 🚀 Build and Push to Docker Hub
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Собираем образ API (он же используется для Celery воркеров)
+      - name: Build and Push API Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cinematch-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Если у тебя есть папка frontend с Dockerfile
+      - name: Build and Push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cinematch-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  simulate_deploy:
+    name: 🏁 Deployment Readiness
+    needs: build_push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "SUCCESS: CineMatch ecosystem is validated and delivered to Docker Hub."
+          echo "To deploy: docker compose pull && docker compose up -d"
