@@ -36,7 +36,6 @@ class MovieService:
                 (UserMovieProgress.user_id == current_user.id)
             ).options(contains_eager(Movie.user_progress))
         else:
-            # Для гостей просто подгружаем пустой список (или вообще не грузим)
             stmt = stmt.options(selectinload(Movie.user_progress))
 
         stmt = stmt.options(

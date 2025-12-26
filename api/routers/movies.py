@@ -62,7 +62,7 @@ async def get_movie_search(search: str = Query(min_length=1, description='Пои
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.get('/{movie_id}', response_model=MovieRead)
-async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db), current_user: Optional[UserModel] = Depends(get_current_user)):
+async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db), current_user: Optional[UserModel] = Depends(get_current_user_optional)):
     movies_service = MovieService(db)
     try:
         result = await movies_service.get_movie(movie_id, current_user)

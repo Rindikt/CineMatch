@@ -78,13 +78,15 @@ async def test_update_existing_progress(auth_client, test_movie):
     ]
 )
 async def test_delete_movie_as_admin(auth_client, test_movie, user, expected_status):
-    movie_id = test_movie[0].tmdb_id
-    response = await user.delete(f'/movies/{movie_id}')
+    movie_tmdb_id = test_movie[0].tmdb_id
+    movie_id = test_movie[0].id
+
+    response = await user.delete(f'/movies/{movie_tmdb_id}')
     assert response.status_code == expected_status
     if expected_status == HTTPStatus.OK:
-        get_res = await auth_client.get(f'/movies/tmdb/{movie_id}')
+        get_res = await auth_client.get(f'/movies/{movie_id}')
         assert get_res.status_code == HTTPStatus.NOT_FOUND
     else:
-        get_res = await auth_client.get(f'/movies/tmdb/{movie_id}')
+        get_res = await auth_client.get(f'/movies/{movie_id}')
         assert get_res.status_code == HTTPStatus.OK
 
