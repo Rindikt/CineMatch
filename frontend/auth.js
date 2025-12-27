@@ -53,60 +53,68 @@ export function logout() {
     location.reload();
 }
 
-export function updateAuthUI() {
-    const token = localStorage.getItem('token');
-    const authContainer = document.querySelector('.auth-controls');
+export async function updateAuthUI() {
+    const authContainer = document.getElementById('auth_container') || document.getElementById('auth-links');
     if (!authContainer) return;
 
-    // Общий стиль для кнопок
-    const btnStyle = `
-        padding: 8px 16px;
-        margin-left: 10px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border: 1px solid #007bff;
-        font-family: 'Segoe UI', sans-serif;
-    `;
+    const token = localStorage.getItem('token');
 
+    const btnStyle = "padding: 10px 20px; border-radius: 8px; border: 1px solid #007bff; cursor: pointer; font-weight: bold; transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;";
     const primaryBtn = `background: #007bff; color: white; ${btnStyle}`;
     const outlineBtn = `background: white; color: #007bff; ${btnStyle}`;
+    const adminBtn = `background: #28a745; color: white; border-color: #28a745; ${btnStyle}`;
 
     if (token) {
-        authContainer.innerHTML = `
-            <button style="${outlineBtn}"
-                    onmouseover="this.style.background='#f0f7ff'"
-                    onmouseout="this.style.background='white'"
-                    onclick="location.href='profile.html'">
-                👤 Мой Профиль
-            </button>
-            <button style="${primaryBtn}"
-                    onmouseover="this.style.background='#0056b3'"
-                    onmouseout="this.style.background='#007bff'"
-                    onclick="window.logout()">
-                🚪 Выйти
-            </button>
-        `;
+        try {
+            // Запрашиваем твой UserProfileResponse
+            const userProfile = await fetchData('/users/me');
+
+            let buttonsHtml = `<div style="display: flex; gap: 10px;">`;
+
+            // Если роль из твоего бэкенда "admin" — рисуем кнопку
+            if (userProfile.role === 'admin') {
+                buttonsHtml += `
+                    <a href="admin.html" style="${adminBtn}"
+                       onmouseover="this.style.background='#218838'"
+                       onmouseout="this.style.background='#28a745'">
+                        ⚙️ Админка
+                    </a>
+                `;
+            }
+
+            buttonsHtml += `
+                <button style="${outlineBtn}"
+                        onmouseover="this.style.background='#f0f7ff'"
+                        onmouseout="this.style.background='white'"
+                        onclick="location.href='profile.html'">
+                    👤 ${userProfile.nickname}
+                </button>
+                <button style="${primaryBtn}"
+                        onmouseover="this.style.background='#0056b3'"
+                        onmouseout="this.style.background='#007bff'"
+                        onclick="window.logout()">
+                    🚪 Выйти
+                </button>
+            </div>`;
+
+            authContainer.innerHTML = buttonsHtml;
+        } catch (err) {
+            console.error("Ошибка сессии:", err);
+            // Если токен плохой, показываем кнопки входа
+            showGuestButtons(authContainer, outlineBtn, primaryBtn);
+        }
     } else {
-        authContainer.innerHTML = `
-            <button style="${outlineBtn}"
-                    onmouseover="this.style.background='#f0f7ff'"
-                    onmouseout="this.style.background='white'"
-                    onclick="window.login()">
-                🔑 Войти
-            </button>
-            <button style="${primaryBtn}"
-                    onmouseover="this.style.background='#0056b3'"
-                    onmouseout="this.style.background='#007bff'"
-                    onclick="window.register()">
-                📝 Регистрация
-            </button>
-        `;
+        showGuestButtons(authContainer, outlineBtn, primaryBtn);
     }
 }
-
+function showGuestButtons(container, outline, primary) {
+    container.innerHTML = `
+        <div style="display: flex; gap: 10px;">
+            <button style="${outline}" onclick="window.login()">🔑 Войти</button>
+            <button style="${primary}" onclick="window.register()">📝 Регистрация</button>
+        </div>
+    `;
+}
 
 
 // Прокидываем в window, чтобы HTML видел функции

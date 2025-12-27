@@ -24,7 +24,7 @@ class MovieLight(BaseModel):
     release_year: int
     rating: float
     poster_path: str | None = None
-    user_progress: list['MovieProgressRead'] = Field(default_factory=list, exclude=True)
+    user_progress: list['MovieProgressRead'] = Field(default_factory=list)
 
 
     @computed_field

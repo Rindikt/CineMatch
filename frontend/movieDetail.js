@@ -117,7 +117,7 @@ async function renderPage() {
                 <div style="display: flex; align-items: center; gap: 12px; background: #fdfdfd; padding: 10px; border-radius: 10px; border: 1px solid #f0f0f0;">
                     <img src="${photoUrl}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: #eee;">
                     <div style="overflow: hidden;">
-                        <a href="actor.html?id=${item.actor.id}" style="text-decoration: none; color: #007bff; font-weight: bold; font-size: 14px; display: block;">
+                        <a href="actor_detail.html?id=${item.actor.id}" style="text-decoration: none; color: #007bff; font-weight: bold; font-size: 14px; display: block;">
                             ${item.actor.name}
                         </a>
                         <div style="font-size: 12px; color: #777; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${item.role_name}</div>

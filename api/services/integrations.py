@@ -64,8 +64,17 @@ async def import_movie_and_relations(tmdb_movie_id: int, session: AsyncSession =
 
     raw_movie_data = await fetch_tmdb_data(f"/movie/{tmdb_movie_id}")
     movie_create_data = transform_tmdb_movie(raw_movie_data)
-
     raw_credits_data = await fetch_tmdb_data(f"/movie/{tmdb_movie_id}/credits")
+    actors_data = []
+    if raw_credits_data and raw_credits_data.get('cast'):
+        for cast in raw_credits_data['cast'][:15]:
+            tmdb_actor_id = cast.get('id')
+            raw_actor_data = await fetch_tmdb_data(f"/person/{tmdb_actor_id}")
+            actor_create_data = transform_tmdb_actor(raw_actor_data)
+            actors_data.append({
+                "info": actor_create_data,
+                "character": cast.get('character')
+            })
 
     if not movie_create_data:
         print("🛑 Failed to transform movie data.")
@@ -114,20 +123,18 @@ async def import_movie_and_relations(tmdb_movie_id: int, session: AsyncSession =
             if raw_credits_data and raw_credits_data.get('cast'):
                 print(f"--- 4. Processing cast members...")
 
-                for cast_member in raw_credits_data['cast'][:15]:
-                    tmdb_actor_id = cast_member.get('id')
+                for item in actors_data:
+                    actor_info = item['info']
+                    character_name = item["character"]
 
-                    raw_actor_data = await fetch_tmdb_data(f"/person/{tmdb_actor_id}")
-                    actor_create_data = transform_tmdb_actor(raw_actor_data)
-
-                    if actor_create_data:
-                        actor_obj = await get_or_create_actor(active_session, actor_create_data)
+                    if actor_info:
+                        actor_obj = await get_or_create_actor(active_session, actor_info)
 
                         # Создание записи M2M (MovieActor)
                         movie_actor_link = MovieActor(
                             movie_id=new_movie.id,
                             actor_id=actor_obj.id,
-                            role_name=cast_member.get('character')
+                            role_name=character_name
                         )
                         active_session.add(movie_actor_link)
 
