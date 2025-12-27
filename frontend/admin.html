@@ -4,48 +4,10 @@
     <meta charset="UTF-8">
     <title>Панель администратора — CineMatch</title>
     <link rel="stylesheet" href="main.css">
-    <style>
-        .main-wrapper { max-width: 1100px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-
-        .admin-layout { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-
-        .admin-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .admin-card h3 { margin-top: 0; font-size: 16px; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-
-        .btn-admin { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-blue { background: #007bff; color: white; }
-        .btn-green { background: #28a745; color: white; }
-        .btn-flower { background: #f39c12; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; }
-        .btn-flower:hover { background: #d35400; }
-
-        /* Секция истории задач */
-        .task-log { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 15px; height: fit-content; max-height: 80vh; overflow-y: auto; }
-        .task-item {
-            background: white; border: 1px solid #eee; padding: 10px; border-radius: 6px; margin-bottom: 8px;
-            font-size: 12px; cursor: pointer; transition: 0.2s; position: relative;
-        }
-        .task-item:hover { border-color: #007bff; background: #f0f7ff; }
-        .task-item .task-id { color: #888; font-family: monospace; font-size: 10px; display: block; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; }
-
-        .status-popup {
-            margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 13px;
-            display: none; background: #fff; border: 2px solid #f39c12;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        pre { background: #272822; color: #f8f8f2; padding: 10px; border-radius: 4px; overflow-x: auto; margin-top: 10px; font-size: 11px; }
-
-        @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
-    </style>
+    <link rel="stylesheet" href="admin_styles.css">
 </head>
 <body>
-    <div class="main-wrapper">
+<div class="main-wrapper">
         <header class="admin-header">
             <div>
                 <h1 style="margin:0;">⚙️ Админ-панель</h1>
@@ -57,63 +19,79 @@
             </div>
         </header>
 
-        <div class="admin-layout">
-            <div class="admin-grid">
-                <div class="admin-card">
-                    <h3>📥 Импорт фильма</h3>
-                    <div class="input-group">
-                        <label>TMDB ID</label>
-                        <input type="number" id="add_tmdb_id" placeholder="Напр: 550">
-                    </div>
-                    <button class="btn-admin btn-blue" onclick="runTask('add_single')">Добавить в базу</button>
-                </div>
+        <nav style="margin-bottom: 20px; display: flex; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <button onclick="showSection('content')" class="btn-flower" style="cursor:pointer">📦 Контент</button>
+            <button onclick="showSection('users')" class="btn-flower" style="cursor:pointer; background: #6c757d;">👥 Пользователи</button>
+        </nav>
 
-                <div class="admin-card">
-                    <h3>🔄 Обновить статистику</h3>
-                    <div class="input-group">
-                        <label>TMDB ID</label>
-                        <input type="number" id="update_tmdb_id" placeholder="ID существующего">
-                    </div>
-                    <button class="btn-admin btn-green" onclick="runTask('update_single')">Обновить данные</button>
-                </div>
-
-                <div class="admin-card">
-                    <h3>📚 Массовый импорт</h3>
-                    <div style="display: flex; gap: 10px;">
-                        <div class="input-group" style="flex:1;">
-                            <label>С стр.</label>
-                            <input type="number" id="start_page" value="1">
+        <div id="section_content">
+            <div class="admin-layout">
+                <div class="admin-grid">
+                    <div class="admin-card">
+                        <h3>📥 Импорт фильма</h3>
+                        <div class="input-group">
+                            <label>TMDB ID</label>
+                            <input type="number" id="add_tmdb_id" placeholder="Напр: 550">
                         </div>
-                        <div class="input-group" style="flex:1;">
-                            <label>По стр.</label>
-                            <input type="number" id="end_page" value="2">
-                        </div>
+                        <button class="btn-admin btn-blue" onclick="runTask('add_single')">Добавить в базу</button>
                     </div>
-                    <button class="btn-admin btn-blue" onclick="runTask('pages_load')">Загрузить страницы</button>
+
+                    <div class="admin-card">
+                        <h3>🔄 Обновить статистику</h3>
+                        <div class="input-group">
+                            <label>TMDB ID</label>
+                            <input type="number" id="update_tmdb_id" placeholder="ID существующего">
+                        </div>
+                        <button class="btn-admin btn-green" onclick="runTask('update_single')">Обновить данные</button>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>📚 Массовый импорт</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="input-group" style="flex:1;">
+                                <label>С стр.</label>
+                                <input type="number" id="start_page" value="1">
+                            </div>
+                            <div class="input-group" style="flex:1;">
+                                <label>По стр.</label>
+                                <input type="number" id="end_page" value="2">
+                            </div>
+                        </div>
+                        <button class="btn-admin btn-blue" onclick="runTask('pages_load')">Загрузить страницы</button>
+                    </div>
+
+                    <div class="admin-card">
+                        <h3>⚡ Batch Обновление</h3>
+                        <div class="input-group">
+                            <label>Кол-во фильмов</label>
+                            <input type="number" id="batch_size" value="50">
+                        </div>
+                        <button class="btn-admin btn-green" onclick="runTask('update_batch')">Обновить очередь</button>
+                    </div>
                 </div>
 
-                <div class="admin-card">
-                    <h3>⚡ Batch Обновление</h3>
-                    <div class="input-group">
-                        <label>Кол-во фильмов</label>
-                        <input type="number" id="batch_size" value="50">
+                <div class="task-log">
+                    <h3 style="margin-top:0; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">📜 История задач</h3>
+                    <div id="recent_tasks_list">
+                        </div>
+
+                    <div id="status_display" class="status-popup" style="display:none; margin-top: 20px;">
+                        <div style="display:flex; justify-content: space-between;">
+                            <strong>Результат:</strong>
+                            <span id="status_val" style="font-weight: bold;">-</span>
+                        </div>
+                        <pre id="status_res" style="background: #eee; padding: 10px; border-radius: 4px; font-size: 11px; white-space: pre-wrap;"></pre>
+                        <small style="color: #888; font-size: 10px;">Данные получены из Celery Result Backend</small>
                     </div>
-                    <button class="btn-admin btn-green" onclick="runTask('update_batch')">Обновить очередь</button>
                 </div>
             </div>
+        </div>
 
-            <div class="task-log">
-                <h3 style="margin-top:0; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">📜 История задач</h3>
-                <div id="recent_tasks_list">
-                    </div>
-
-                <div id="status_display" class="status-popup">
-                    <div style="display:flex; justify-content: space-between;">
-                        <strong>Результат:</strong>
-                        <span id="status_val" style="font-weight: bold;">-</span>
-                    </div>
-                    <pre id="status_res">Нажмите на задачу в списке выше, чтобы проверить её состояние.</pre>
-                    <small style="color: #888; font-size: 10px;">Данные получены из Celery Result Backend</small>
+        <div id="section_users" style="display: none;">
+            <div class="admin-card">
+                <h3>👥 Управление пользователями</h3>
+                <div id="user_list_body">
+                    <p>Загрузка списка пользователей...</p>
                 </div>
             </div>
         </div>
@@ -128,6 +106,72 @@
         // 1. Инициализация: загрузка задач из памяти при открытии страницы
         let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         renderTasks();
+        async function loadUsers() {
+            const container = document.getElementById('user_list_body');
+            if (!container) return;
+
+            container.innerHTML = '<p style="text-align:center;">Загрузка пользователей...</p>';
+
+            try {
+                // Делаем запрос к твоему API
+                const users = await fetchData('/admin/users');
+
+                if (users.length === 0) {
+                    container.innerHTML = '<p>Пользователей пока нет.</p>';
+                    return;
+                }
+
+                // Формируем таблицу
+                let html = `
+                    <table class="user-table" style="width:100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                                <th style="padding: 10px;">Email / Никнейм</th>
+                                <th style="padding: 10px;">Роль</th>
+                                <th style="padding: 10px;">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                users.forEach(user => {
+                    html += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px;">
+                                <strong>${user.nickname || 'Без ника'}</strong><br>
+                                <small style="color: #666;">${user.email}</small>
+                            </td>
+                            <td style="padding: 10px;">
+                                <select onchange="updateUserRole('${user.email}', this.value)" style="padding: 5px; border-radius: 4px;">
+                                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                </select>
+                            </td>
+                            <td style="padding: 10px;">
+                                <button onclick="alert('История действий скоро будет')" class="btn-sm">Логи</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = `<p style="color:red;">Ошибка загрузки: ${err.message}</p>`;
+    }
+}
+
+
+window.updateUserRole = async (email, newRole) => {
+    try {
+        await fetchData(`/admin/users/update/${email}?user_status=${newRole}`, {}, 'PATCH');
+        alert('Роль успешно обновлена');
+    } catch (err) {
+        alert('Ошибка обновления: ' + err.message);
+        loadUsers(); // Перезагружаем список, если что-то пошло не так
+        }
+};
 
         function saveAndRender(name, taskId) {
             tasks.unshift({ name, id: taskId, time: new Date().toLocaleTimeString() });
@@ -222,8 +266,26 @@
                 sRes.innerText = 'Не удалось получить статус задачи. Проверьте, добавлен ли эндпоинт task_status на бэкенд.';
             }
         }
+        window.showSection = (sectionId) => {
+            // 1. Список всех ID секций, которые у нас есть
+            const sections = ['section_content', 'section_users'];
+
+            // 2. Проходим циклом и скрываем все, кроме выбранной
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = (id === `section_${sectionId}`) ? 'grid' : 'none';
+                }
+            });
+
+            // 3. Если переключились на пользователей — загружаем их
+            if (sectionId === 'users') {
+                loadUsers();
+            }
+        };
 
         window.runTask = runTask;
+        window.loadUsers = loadUsers;
     </script>
 </body>
 </html>

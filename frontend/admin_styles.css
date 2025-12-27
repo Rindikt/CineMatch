@@ -1,0 +1,29 @@
+/* admin_styles.css */
+.main-wrapper { max-width: 1100px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+
+.admin-layout { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+.admin-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.admin-card h3 { margin-top: 0; font-size: 16px; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+.input-group { margin-bottom: 12px; }
+.input-group label { display: block; font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
+.input-group input { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+
+.btn-admin { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.btn-blue { background: #007bff; color: white; }
+.btn-green { background: #28a745; color: white; }
+.btn-flower { background: #f39c12; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; }
+.btn-flower:hover { background: #d35400; }
+
+/* История задач */
+.task-log { background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; padding: 15px; height: fit-content; max-height: 80vh; overflow-y: auto; }
+.task-item { background: white; border: 1px solid #eee; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 12px; cursor: pointer; transition: 0.2s; position: relative; }
+.task-item:hover { border-color: #007bff; background: #f0f7ff; }
+
+/* Новые стили для таблицы пользователей */
+.user-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.user-table th { text-align: left; font-size: 12px; color: #888; padding: 10px; border-bottom: 2px solid #eee; }
+.user-table td { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }

@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 from core.auth import hash_password, verify_password, create_access_token, create_refresh_token
 from core.config import settings
 from core.models import User as UserModel, UserMovieProgress
+from core.models.users import UserRole
 from core.schemas.users import UserRegister
 
 
@@ -88,5 +89,21 @@ class UserService:
         except jwt.PyJWTError:
             raise ValueError("Token expired or invalid")
 
+    async def update_status_user(self, email, user_status: UserRole):
+        user = await self.db.scalar(
+            select(UserModel).where(UserModel.email == email)
+        )
+        if user is None:
+            raise ValueError("User not found")
+        user.role = user_status.value if hasattr(user_status, 'value') else user_status
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user
+
+    async def get_users(self):
+        users = (await self.db.scalars(select(UserModel))).all()
+        if users is None:
+            raise ValueError("Users not found")
+        return users
 
 
