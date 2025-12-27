@@ -26,7 +26,7 @@
 
         <div id="section_content">
             <div class="admin-layout">
-                <div class="admin-grid">
+                <div class="admin-grid" style="align-items: start;">
                     <div class="admin-card">
                         <h3>📥 Импорт фильма</h3>
                         <div class="input-group">
@@ -87,205 +87,58 @@
             </div>
         </div>
 
-        <div id="section_users" style="display: none;">
+<div id="section_users" style="display: none;">
             <div class="admin-card">
-                <h3>👥 Управление пользователями</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin:0;">👥 Управление пользователями</h3>
+
+                    <div class="search-box">
+                        <input type="text" id="user_search_input" placeholder="Поиск по email..."
+                               style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; width: 250px;">
+                    </div>
+                </div>
+
                 <div id="user_list_body">
                     <p>Загрузка списка пользователей...</p>
                 </div>
             </div>
         </div>
     </div>
+<script type="module">
+    // Добавляем импорт filterUsers
+    import { runTask, renderTasks } from './admin_content.js';
+    import { loadUsers, updateUserRole, filterUsers } from './admin_users.js';
 
-    <script type="module">
-        import { fetchData } from './api.js';
-
-        const listContainer = document.getElementById('recent_tasks_list');
-        const STORAGE_KEY = 'cine_admin_tasks';
-
-        // 1. Инициализация: загрузка задач из памяти при открытии страницы
-        let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    document.addEventListener('DOMContentLoaded', () => {
         renderTasks();
-        async function loadUsers() {
-            const container = document.getElementById('user_list_body');
-            if (!container) return;
+        showSection('content');
 
-            container.innerHTML = '<p style="text-align:center;">Загрузка пользователей...</p>';
-
-            try {
-                // Делаем запрос к твоему API
-                const users = await fetchData('/admin/users');
-
-                if (users.length === 0) {
-                    container.innerHTML = '<p>Пользователей пока нет.</p>';
-                    return;
-                }
-
-                // Формируем таблицу
-                let html = `
-                    <table class="user-table" style="width:100%; border-collapse: collapse; margin-top: 15px;">
-                        <thead>
-                            <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                                <th style="padding: 10px;">Email / Никнейм</th>
-                                <th style="padding: 10px;">Роль</th>
-                                <th style="padding: 10px;">Действие</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-
-                users.forEach(user => {
-                    html += `
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px;">
-                                <strong>${user.nickname || 'Без ника'}</strong><br>
-                                <small style="color: #666;">${user.email}</small>
-                            </td>
-                            <td style="padding: 10px;">
-                                <select onchange="updateUserRole('${user.email}', this.value)" style="padding: 5px; border-radius: 4px;">
-                                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                                </select>
-                            </td>
-                            <td style="padding: 10px;">
-                                <button onclick="alert('История действий скоро будет')" class="btn-sm">Логи</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                html += '</tbody></table>';
-                container.innerHTML = html;
-
-            } catch (err) {
-                container.innerHTML = `<p style="color:red;">Ошибка загрузки: ${err.message}</p>`;
-    }
-}
-
-
-window.updateUserRole = async (email, newRole) => {
-    try {
-        await fetchData(`/admin/users/update/${email}?user_status=${newRole}`, {}, 'PATCH');
-        alert('Роль успешно обновлена');
-    } catch (err) {
-        alert('Ошибка обновления: ' + err.message);
-        loadUsers(); // Перезагружаем список, если что-то пошло не так
-        }
-};
-
-        function saveAndRender(name, taskId) {
-            tasks.unshift({ name, id: taskId, time: new Date().toLocaleTimeString() });
-            if (tasks.length > 10) tasks.pop(); // Ограничиваем список 10 записями
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-            renderTasks();
-            checkTaskStatus(taskId); // Сразу проверяем статус новой задачи
-        }
-
-        function renderTasks() {
-            if (tasks.length === 0) {
-                listContainer.innerHTML = '<p style="color: #999; font-size: 12px; text-align: center; padding: 20px;">Задач еще не запускалось</p>';
-                return;
-            }
-            listContainer.innerHTML = '';
-            tasks.forEach(task => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <strong>${task.name}</strong>
-                        <span style="color:#bbb; font-size:10px;">${task.time}</span>
-                    </div>
-                    <span class="task-id">${task.id}</span>
-                `;
-                div.onclick = () => checkTaskStatus(task.id);
-                listContainer.appendChild(div);
+        // Вешаем событие на поиск
+        const searchInput = document.getElementById('user_search_input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                filterUsers(e.target.value);
             });
         }
+    });
 
-        // 2. Основная функция запуска
-        async function runTask(type) {
-            try {
-                let res;
-                let label = '';
-
-                if (type === 'add_single') {
-                    const id = document.getElementById('add_tmdb_id').value;
-                    if(!id) return;
-                    label = `Импорт ID:${id}`;
-                    res = await fetchData(`/integrations/${id}`);
-                }
-                else if (type === 'update_single') {
-                    const id = document.getElementById('update_tmdb_id').value;
-                    if(!id) return;
-                    label = `Update ID:${id}`;
-                    res = await fetchData(`/integrations/update_movie/${id}`);
-                }
-                else if (type === 'pages_load') {
-                    const s = document.getElementById('start_page').value;
-                    const e = document.getElementById('end_page').value;
-                    label = `Страницы ${s}-${e}`;
-                    res = await fetchData(`/integrations/pages/${s}?start_page=${s}&end_page=${e}`);
-                }
-                else if (type === 'update_batch') {
-                    const b = document.getElementById('batch_size').value;
-                    label = `Batch (${b} шт.)`;
-                    res = await fetchData(`/integrations/update_movies?batch_size=${b}`);
-                }
-
-                if (res && res.task_id) {
-                    saveAndRender(label, res.task_id);
-                }
-            } catch (err) {
-                alert('Ошибка запуска: ' + err.message);
+    window.showSection = (sectionId) => {
+        const sections = ['section_content', 'section_users'];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const displayType = (id === 'section_content') ? 'grid' : 'block';
+                el.style.display = (id === `section_${sectionId}`) ? displayType : 'none';
             }
+        });
+
+        if (sectionId === 'users') {
+            loadUsers();
         }
+    };
 
-        // 3. Функция проверки статуса (нужна ручка /integrations/task_status/{id} на бэкенде)
-        async function checkTaskStatus(taskId) {
-            const display = document.getElementById('status_display');
-            const sVal = document.getElementById('status_val');
-            const sRes = document.getElementById('status_res');
-
-            display.style.display = 'block';
-            sVal.innerText = 'ЗАПРОС...';
-            sVal.style.color = '#f39c12';
-
-            try {
-                const res = await fetchData(`/integrations/task_status/${taskId}`);
-                sVal.innerText = res.status;
-
-                if (res.status === 'SUCCESS') sVal.style.color = '#28a745';
-                else if (res.status === 'FAILURE') sVal.style.color = '#dc3545';
-                else sVal.style.color = '#f39c12';
-
-                // Вывод результата (если есть) или ошибки
-                sRes.innerText = res.result ? JSON.stringify(res.result, null, 2) : 'Задача в очереди или выполняется воркером...';
-            } catch (err) {
-                sVal.innerText = 'ОШИБКА';
-                sVal.style.color = '#dc3545';
-                sRes.innerText = 'Не удалось получить статус задачи. Проверьте, добавлен ли эндпоинт task_status на бэкенд.';
-            }
-        }
-        window.showSection = (sectionId) => {
-            // 1. Список всех ID секций, которые у нас есть
-            const sections = ['section_content', 'section_users'];
-
-            // 2. Проходим циклом и скрываем все, кроме выбранной
-            sections.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.style.display = (id === `section_${sectionId}`) ? 'grid' : 'none';
-                }
-            });
-
-            // 3. Если переключились на пользователей — загружаем их
-            if (sectionId === 'users') {
-                loadUsers();
-            }
-        };
-
-        window.runTask = runTask;
-        window.loadUsers = loadUsers;
-    </script>
+    window.runTask = runTask;
+    window.updateUserRole = updateUserRole;
+</script>
 </body>
 </html>
