@@ -2,15 +2,12 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.services.actors import ActorService
-from core.auth import get_current_user_optional
 from core.models.users import User as UserModel, UserRole
 from core.schemas.users import UserBase
 from core.auth import get_current_user, get_current_admin
-from core.schemas.actors import ActorRead
-from core.schemas.movies import MovieLight
 from api.services.users import UserService
 from core.db import get_db
+from api.services.analytics import AnalyticsService
 
 router = APIRouter(
     prefix="/admin",
@@ -41,6 +38,15 @@ async def get_users(db: AsyncSession = Depends(get_db), _: UserModel = Depends(g
     user_service = UserService(db=db)
     try:
         result = await user_service.get_users()
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+@router.get('/stats')
+async def get_all_stats(db: AsyncSession = Depends(get_db), _: UserModel = Depends(get_current_admin)):
+    analytics_service = AnalyticsService(db=db)
+    try:
+        result = await analytics_service.get_admin_stats()
         return result
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

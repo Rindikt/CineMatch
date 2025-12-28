@@ -4,6 +4,7 @@ venv/
 __pycache__/
 *.pyc
 
+db_migrations/
 # IDE files (например, PyCharm/VS Code)
 .idea/
 .vscode/

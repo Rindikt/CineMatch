@@ -3,7 +3,7 @@ from decimal import Decimal
 import enum
 from core.db import Base
 from datetime import date, datetime
-from sqlalchemy import Integer, ForeignKey, DECIMAL, PrimaryKeyConstraint, Enum, func, DateTime
+from sqlalchemy import Integer, ForeignKey, DECIMAL, PrimaryKeyConstraint, Enum, func, DateTime, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
@@ -32,6 +32,7 @@ class Movie(Base):
     runtime_minutes: Mapped[int|None]
     rating: Mapped[float]
     popularity: Mapped[float]
+    add_date: Mapped[date] = mapped_column(Date, server_default=func.current_date(), nullable=False)
     update_date_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     revenue: Mapped[Decimal|None] = mapped_column(DECIMAL(precision=20, scale=2), nullable=True)
     budget: Mapped[Decimal | None] = mapped_column(DECIMAL(precision=20, scale=2), nullable=True)

@@ -1,6 +1,7 @@
 import enum
+from datetime import date
 
-from sqlalchemy import Integer, String, Enum, ForeignKey, CheckConstraint, Boolean
+from sqlalchemy import Integer, String, Enum, ForeignKey, CheckConstraint, Boolean, Date, func
 
 from core.db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -24,6 +25,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True)
     nickname: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[date] = mapped_column(Date, server_default=func.current_date(), nullable=False)
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, name="user_role_enum", create_type=True),
         default=UserRole.user)

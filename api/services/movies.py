@@ -1,7 +1,7 @@
 from math import ceil
 from typing import Optional
 
-from sqlalchemy import select, desc, asc, func, and_
+from sqlalchemy import select, desc, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
 
