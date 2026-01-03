@@ -1,6 +1,7 @@
 from .actors import ActorBase, ActorRead, ActorCreate, ActorLight
 from .movies import MovieCreate, MovieBase, MovieRead, MovieActorRead, MovieGenreRead, MovieLight, MovieProgressRead
 from .genres import GenreBase, GenreRead
+from .reviews import ReviewRead, ReviewCreate
 
 ActorBase.model_rebuild()
 GenreBase.model_rebuild()
@@ -13,3 +14,5 @@ MovieGenreRead.model_rebuild()
 ActorRead.model_rebuild()
 MovieLight.model_rebuild()
 MovieProgressRead.model_rebuild()
+ReviewRead.model_rebuild()
+ReviewCreate.model_rebuild()

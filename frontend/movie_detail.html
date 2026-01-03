@@ -27,15 +27,49 @@
             display: flex;
             flex-direction: column;
         }
+
+        /* Стили для адаптивного контейнера видео */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* Пропорции 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         @media (max-width: 800px) {
             .movie-grid { grid-template-columns: 1fr; }
             .left-side { align-items: center; }
+        }
+
+        /* Стили для отзывов */
+        .review-card {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ddd;
+        }
+        .review-form-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border: 1px solid #eee;
         }
     </style>
 </head>
 <body>
     <div class="main-wrapper">
-        <a href="javascript:history.back()" class="back-button" style="text-decoration: none; background: #007bff; color: white; border: none;">← Назад</a>
+        <a href="javascript:history.back()" class="back-button" style="text-decoration: none; background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 5px; display: inline-block; margin-bottom: 10px;">← Назад</a>
 
         <div class="movie-grid">
             <div class="left-side">
@@ -43,8 +77,40 @@
                 <div id="user_actions_section"></div>
             </div>
 
-            <div class="right-side" id="movie_info_content">
+            <div class="right-side">
+                <div id="movie_info_content"></div>
+
+                <div id="trailer-container" style="display: none; margin-top: 40px; padding: 0 10px;">
+                    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Трейлер</h3>
+                    <div class="video-container">
+                        <iframe
+                            id="trailer-iframe"
+                            src=""
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
                 </div>
+
+                <div id="reviews-section" style="margin-top: 50px; padding: 0 10px;">
+                    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Отзывы пользователей</h3>
+
+                    <div id="add-review-form" class="review-form-container" style="display: none;">
+                        <h4 style="margin-top: 0;">Ваш отзыв</h4>
+                        <select id="review-type-select" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc;">
+                            <option value="neutral">😐 Нейтральный</option>
+                            <option value="positive">😊 Положительный</option>
+                            <option value="negative">😡 Отрицательный</option>
+                        </select>
+                        <textarea id="review-text-area" rows="4" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box;" placeholder="Поделитесь впечатлениями о фильме..."></textarea>
+                        <button id="submit-review-btn" style="margin-top: 15px; background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">Опубликовать отзыв</button>
+                    </div>
+
+                    <div id="reviews-list" style="margin-top: 30px;">
+                        </div>
+                </div>
+            </div>
         </div>
 
         <p id="error_message" style="color: red; text-align: center;"></p>

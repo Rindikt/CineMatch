@@ -50,3 +50,12 @@ async def get_all_stats(db: AsyncSession = Depends(get_db), _: UserModel = Depen
         return result
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+@router.delete('/users/{email}')
+async def delete_user(email: str, db: AsyncSession = Depends(get_db), _: UserModel = Depends(get_current_admin)):
+    user_service = UserService(db=db)
+    try:
+        result = await user_service.delite_user(email)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

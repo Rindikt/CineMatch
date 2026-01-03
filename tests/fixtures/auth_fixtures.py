@@ -53,6 +53,13 @@ async def test_user(db_session):
     return user
 
 @pytest.fixture
+async def second_test_user(db_session):
+    user = User(email="second_tes@test.com", nickname="second_tester", hashed_password="testpassword", is_active=True)
+    db_session.add(user)
+    await db_session.commit()
+    return user
+
+@pytest.fixture
 async def test_admin(db_session):
     admin = User(email="admin@test.com",
                  nickname="admin_tester",
@@ -72,5 +79,11 @@ async def admin_client(client, test_admin):
 @pytest.fixture
 async def auth_client(client, test_user):
     token = create_access_token({"sub": test_user.email, "id": test_user.id})
+    client.headers.update({"Authorization": f"Bearer {token}"})
+    return client
+
+@pytest.fixture
+async def auth_second_client(client, second_test_user):
+    token = create_access_token({"sub": second_test_user.email, "id": second_test_user.id})
     client.headers.update({"Authorization": f"Bearer {token}"})
     return client

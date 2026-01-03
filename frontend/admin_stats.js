@@ -25,8 +25,8 @@ export async function initStats() {
         renderBarChart('userRatingsChart', d.user_ratings_by_genre, 'avg_rating', 'Оценка юзеров', '#9966ff');
 
         // Таблицы ТОП-10
-        renderSimpleTable('top_views_table', d.top_10_views, 'views_count', 'Просмотров');
-        renderSimpleTable('top_dropped_table', d.top_10_dropped || [], 'dropped_count', 'Брошено');
+        renderSimpleTable('top_views_table', d.top_10_views, 'views_count', 'Просмотров', 'user_rating');
+        renderSimpleTable('top_dropped_table', d.top_10_dropped_movies || [], 'views_count', 'Брошено', 'user_rating');
 
         // Итоговые цифры в карточках
         renderSummary(data.total_stats);
@@ -119,7 +119,7 @@ function renderFullTable(genres, ratings) {
     container.innerHTML = html + '</tbody></table>';
 }
 
-function renderSimpleTable(containerId, list, valKey, valLabel) {
+function renderSimpleTable(containerId, list, valKey, valLabel, ratingKey = null) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -128,7 +128,8 @@ function renderSimpleTable(containerId, list, valKey, valLabel) {
             <thead>
                 <tr style="border-bottom: 2px solid #eee; text-align: left; color: #666;">
                     <th style="padding: 8px;">Фильм</th>
-                    <th style="padding: 8px; text-align: right;">${valLabel}</th>
+                    <th style="padding: 8px; text-align: center;">${valLabel}</th>
+                    ${ratingKey ? '<th style="padding: 8px; text-align: right;">Рейтинг</th>' : ''}
                 </tr>
             </thead>
             <tbody>`;
@@ -137,11 +138,15 @@ function renderSimpleTable(containerId, list, valKey, valLabel) {
         html += `
             <tr style="border-bottom: 1px solid #f9f9f9;">
                 <td style="padding: 8px;">${item.name}</td>
-                <td style="padding: 8px; text-align: right; font-weight: bold;">${item[valKey]}</td>
+                <td style="padding: 8px; text-align: center; font-weight: bold;">${item[valKey]}</td>
+                ${ratingKey ? `
+                    <td style="padding: 8px; text-align: right;">
+                        <span style="color: #ffc107;">★</span> ${item[ratingKey] || 0}
+                    </td>` : ''}
             </tr>`;
     });
 
-    container.innerHTML = html + (list.length ? '</tbody></table>' : '<tr><td colspan="2" style="padding:20px; text-align:center; color:#ccc;">Данных пока нет</td></tr></tbody></table>');
+    container.innerHTML = html + (list.length ? '</tbody></table>' : '<tr><td colspan="3" style="padding:20px; text-align:center; color:#ccc;">Данных пока нет</td></tr></tbody></table>');
 }
 
 function renderSummary(stats) {

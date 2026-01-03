@@ -20,6 +20,8 @@ class Movie(Base):
     media_type: Mapped[MediaType] = mapped_column(Enum(MediaType, values_callable=lambda obj: [e.value for e in obj]),
                                                   nullable=False,
                                                   default=MediaType.MOVIE)
+
+    trailer_url: Mapped[str|None] = mapped_column(None, nullable=True)
     number_of_seasons: Mapped[int|None]
     number_of_episodes: Mapped[int|None]
     title: Mapped[str]
@@ -47,6 +49,7 @@ class Movie(Base):
         back_populates='movie',
         cascade='all, delete-orphan'
     )
+    reviews: Mapped[list['Review']] = relationship(back_populates="movie", cascade="all, delete-orphan")
 
 
 class Genre(Base):

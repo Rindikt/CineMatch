@@ -9,7 +9,6 @@ from core.models.movies import MediaType
 from core.models.users import WatchStatus
 
 
-
 class MovieGenreRead(BaseModel):
     """Схема для объекта ассоциации (Genre)"""
     genre: 'GenreBase'
@@ -90,6 +89,7 @@ class MovieCreate(MovieBase):
     tagline: str | None = None
     description: str | None = Field(None, max_length=2000)
     runtime_minutes: int|None = None
+    trailer_url: str | None = None
     rating: float
     popularity: float
     number_of_seasons: str|None = None
@@ -109,7 +109,9 @@ class MovieRead(MovieBase):
     tagline: str|None = None
     description: str|None = None
     runtime_minutes: int|None = None
+    trailer_url: str | None
     user_progress: list['MovieProgressRead'] = []
+    reviews: list['ReviewRead'] = []
 
     # Рейтинги
     rating: float

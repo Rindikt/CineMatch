@@ -106,4 +106,16 @@ class UserService:
             raise ValueError("Users not found")
         return users
 
+    async def delite_user(self, email):
+        user = await self.db.scalar(
+            select(UserModel).where(UserModel.email == email)
+        )
+        if user is None:
+            raise ValueError("User not found")
+        await self.db.delete(user)
+        await self.db.commit()
+        return {
+            'message': f'Пользователь с email {email} успешно удалён'
+        }
+
 

@@ -10,6 +10,7 @@ class UserRegister(BaseModel):
     password: str = Field(min_length= 8, description='Пароль (минимум 8 символов)')
 
 class UserBase(BaseModel):
+    id: int
     email: str = Field(description="Email пользователя")
     nickname: str = Field(description='Никнейм пользователя')
     role: str = Field(description='Роль пользователя')

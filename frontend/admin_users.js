@@ -61,8 +61,8 @@ function renderUserTable(users) {
                         <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                 </td>
-                <td style="padding: 12px;">
-                    <button onclick="alert('История логов в разработке')" class="btn-sm" style="background: #eee; border: 1px solid #ccc; cursor: pointer; padding: 4px 8px; border-radius: 4px;">Логи</button>
+                <td style="padding: 12px; display: flex; gap: 8px;">
+                    <button onclick="deleteUser('${user.email}')" class="btn-sm" style="background: #ffebee; border: 1px solid #ffcdd2; color: #c62828; cursor: pointer; padding: 4px 8px; border-radius: 4px;">Удалить</button>
                 </td>
             </tr>
         `;
@@ -101,3 +101,25 @@ export async function updateUserRole(email, newRole) {
         loadUsers();
     }
 }
+export async function deleteUser(email) {
+    if (!confirm(`Вы уверены, что хотите навсегда удалить пользователя ${email}?`)) {
+        return;
+    }
+
+    try {
+        await fetchData(`/admin/users/${email}`, {}, 'DELETE');
+
+        // Удаляем из локального списка, чтобы UI обновился сразу
+        allUsers = allUsers.filter(u => u.email !== email);
+
+        // Перерисовываем таблицу (с учетом поиска, если он вбит)
+        const currentQuery = document.getElementById('user_search_input')?.value || '';
+        filterUsers(currentQuery);
+
+        alert('Пользователь успешно удален');
+    } catch (err) {
+        alert('Ошибка при удалении: ' + err.message);
+    }
+}
+window.deleteUser = deleteUser;
+window.updateUserRole = updateUserRole;

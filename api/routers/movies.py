@@ -3,15 +3,13 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.config import settings
 from core.db import get_db
 from api.services.movies import MovieService
-from core.models import User as UserModel
+from core.models import User as UserModel, Review
 from core.models.users import WatchStatus
 from core.schemas.movies import MovieRead, MovieBase, MovieLight
 from core.schemas.pagination import PaginatedResponse
 from core.auth import get_current_admin, get_current_user, get_current_user_optional
-
 
 router = APIRouter(
     prefix="/movies",
@@ -22,9 +20,9 @@ router = APIRouter(
 async def get_movie_filter(
         genre_ids: str|None = Query(None),
         year_min: int|None = Query(
-        1888, ge=1888, description='Фильмы, выпущенные не ранее указанного года'),
+        None, ge=1888, description='Фильмы, выпущенные не ранее указанного года'),
         year_max: int|None = Query(None, description='Фильмы, выпущенные не позднее указанного года'),
-        rating_min: float|None = Query(None,ge=1.0, le=10.0, description='Фильмы с рейтингом не ниже указанного.'),
+        rating_min: float|None = Query(None,ge=0.0, le=10.0, description='Фильмы с рейтингом не ниже указанного.'),
         sort_by: str|None = Query(None, description='Поле для сортировки'),
         page: int = Query(1, ge=1, description='Номер страницы'),
         page_size: int = Query(20, description='Количество фильмов на странице.'),

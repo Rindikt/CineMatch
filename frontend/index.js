@@ -17,9 +17,9 @@ function saveState() {
         searchQuery: document.getElementById('search_input')?.value || '',
         filters: {
             genre: document.getElementById('genre_select')?.value || '',
-            year_min: document.getElementById('year_min')?.value || '1900',
+            year_min: document.getElementById('year_min')?.value || '',
             year_max: document.getElementById('year_max')?.value || '',
-            rating_min: document.getElementById('rating_min')?.value || '1.0',
+            rating_min: document.getElementById('rating_min')?.value || '',
             sort_by: document.getElementById('sort_by')?.value || 'popularity',
             direction: document.getElementById('direction')?.value || 'desc'
         }
@@ -247,9 +247,9 @@ async function fetchMovies() {
             page: currentPage,
             page_size: 20,
             genre_ids: document.getElementById('genre_select')?.value || '',
-            year_min: document.getElementById('year_min')?.value || 1900,
+            year_min: document.getElementById('year_min')?.value || '',
             year_max: document.getElementById('year_max')?.value || '',
-            rating_min: document.getElementById('rating_min')?.value || 1.0,
+            rating_min: document.getElementById('rating_min')?.value || '',
             sort_by: document.getElementById('sort_by')?.value || 'popularity',
             direction: document.getElementById('direction')?.value || 'desc'
         };

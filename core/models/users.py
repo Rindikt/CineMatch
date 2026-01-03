@@ -32,6 +32,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     movie_progress: Mapped[list["UserMovieProgress"]] = relationship(back_populates="user",
                                                                      cascade="all, delete-orphan")
+    reviews: Mapped[list['Review']] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class UserMovieProgress(Base):

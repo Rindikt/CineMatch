@@ -48,42 +48,38 @@ class AnalyticsService:
         return genres_list, rating_list
 
 
-    async def get_top_movies_by_views(self, ):
+    async def get_movies_by_status_top(self, status: WatchStatus):
         """
-            Получает топ-10 фильмов по количеству завершенных просмотров.
-
-            Для каждого фильма рассчитывается количество пользователей со статусом COMPLETED
-            и средний пользовательский рейтинг.
+        Получает топ-10 фильмов по заданному статусу (просмотрено, брошено, в планах).
         """
 
-        avg_user_rating = func.avg(UserMovieProgress.personal_rating).label('avg_user_rating')
-        completed_views = func.count(
+        avg_user_rating = (func.avg(UserMovieProgress.personal_rating)
+                           .filter(UserMovieProgress.personal_rating.is_not(None))
+                           .label('avg_user_rating'))
+        status_count = func.count(
             case(
-                (UserMovieProgress.status == WatchStatus.COMPLETED, UserMovieProgress.movie_id)
+                (UserMovieProgress.status == status, UserMovieProgress.movie_id)
             )
         ).label('views_count')
 
         result = await self.db.execute(select(Movie.title,
-                                              completed_views,
+                                              status_count,
                                               avg_user_rating)
                                        .join(UserMovieProgress, Movie.id == UserMovieProgress.movie_id)
                                        .group_by(Movie.id,Movie.title)
                                        .order_by(desc('views_count'))
                                        .limit(10))
         result = result.mappings().all()
-        top_views_list = []
-        top_ratings_list = []
+        combined_list = []
         for row in result:
-            top_views_list.append({
+            combined_list.append(
+                {
                 "name": row['title'],
                 "views_count": row['views_count'],
-            })
-            top_ratings_list.append({
-                "name": row['title'],
                 "user_rating": round(row['avg_user_rating'] or 0, 2),
             })
 
-        return top_views_list, top_ratings_list
+        return combined_list
 
     async def get_data_in_genre(self):
         """
@@ -164,7 +160,8 @@ class AnalyticsService:
         movies_list, total_movies = await self.get_data_in_movies()
         users_list, total_users = await self.get_data_in_users()
         views_list, user_rating_list = await self.get_rating_users_in_genre()
-        top_views, top_ratings = await self.get_top_movies_by_views()
+        top_views = await self.get_movies_by_status_top(WatchStatus.COMPLETED)
+        dropped_movies = await self.get_movies_by_status_top(WatchStatus.DROPPED)
 
         return {
             "total_stats": {
@@ -180,6 +177,6 @@ class AnalyticsService:
             "user_views_by_genre": views_list,
             "user_ratings_by_genre": user_rating_list,
             "top_10_views": top_views,
-            "top_10_ratings": top_ratings,
+            "top_10_dropped_movies": dropped_movies,
             }
         }

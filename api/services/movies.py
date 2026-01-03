@@ -5,6 +5,7 @@ from sqlalchemy import select, desc, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
 
+from core.models import Review
 from core.models.movies import Movie
 from core.models.actors import MovieActor
 from core.models.movies import MovieGenre
@@ -40,7 +41,9 @@ class MovieService:
 
         stmt = stmt.options(
             selectinload(Movie.actors).selectinload(MovieActor.actor),
-            selectinload(Movie.genres).selectinload(MovieGenre.genre)
+            selectinload(Movie.reviews).selectinload(Review.user),
+            selectinload(Movie.genres).selectinload(MovieGenre.genre),
+
         )
 
         result = await self.db.execute(stmt)
@@ -119,11 +122,11 @@ class MovieService:
     async def get_movie_by_filter(self,
                                   genre_ids: str,
                                   year_max: int,
-                                  rating_min: float,
                                   sort_by: str,
                                   page: int,
                                   page_size: int,
-                                  year_min: int,
+                                  rating_min: float | None = None,
+                                  year_min: int|None = None,
                                   direction: str = 'desc',
                                   current_user: Optional[UserModel]=None):
         """
@@ -154,16 +157,23 @@ class MovieService:
                 pass
 
         if id_list:
-            base_stmt = base_stmt.join(MovieGenre).where(MovieGenre.genre_id.in_(id_list))
+            base_stmt = base_stmt.where(
+                Movie.id.in_(
+                    select(MovieGenre.movie_id).where(MovieGenre.genre_id.in_(id_list))
+                )
+            )
+        filters = []
+        if year_min and year_min > 0:
+            filters.append(Movie.release_year >= year_min)
 
-        filters = [Movie.release_year >= year_min]
+        if year_max:
+            filters.append(Movie.release_year <= year_max)
 
         if rating_min is not None:
-            filters.append(Movie.rating >=rating_min)
-        if year_max is not None:
-            filters.append(Movie.release_year<=year_max)
+            filters.append(Movie.rating >= rating_min)
 
-        base_stmt = base_stmt.where(*filters)
+        if filters:
+            base_stmt = base_stmt.where(*filters)
 
         count_stmt = select(func.count()).select_from(base_stmt.subquery())
         total_items = (await self.db.execute(count_stmt)).scalar_one()
@@ -182,7 +192,6 @@ class MovieService:
         if current_user:
             final_stmt = final_stmt.options(contains_eager(Movie.user_progress))
         else:
-            # final_stmt = base_stmt.options(selectinload(Movie.user_progress))
             final_stmt = final_stmt.options(selectinload(Movie.user_progress))
 
         if sort_by_filter is not None:

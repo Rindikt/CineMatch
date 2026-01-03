@@ -6,6 +6,7 @@ from api.routers.actors import router as actors_router
 from api.routers.genres import router as genres_router
 from api.routers.users import router as users_router
 from api.routers.admin import router as admin_router
+from api.routers.reviews import router as reviews_router
 
 from api.routers.integrations import router as integration_router
 app = FastAPI(
@@ -18,6 +19,7 @@ app.include_router(genres_router)
 app.include_router(integration_router)
 app.include_router(users_router)
 app.include_router(admin_router)
+app.include_router(reviews_router)
 
 origins = [
     '*'

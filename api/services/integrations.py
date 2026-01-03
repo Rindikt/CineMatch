@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import List
+from typing import List, Optional
 import asyncio
 
 import httpx
@@ -54,6 +54,17 @@ async def get_or_create_actor(session: AsyncSession, actor_data: ActorCreate) ->
     await session.flush()
     return new_actor
 
+async def get_trailer_from_tmdb(tmdb_id: int) -> Optional[str]:
+    """Запрашивает видео из TMDB и возвращает ключ YouTube трейлера."""
+    # Сначала пробуем на русском
+    for lang in ["ru-RU", "en-US"]:
+        data = await fetch_tmdb_data(f"/movie/{tmdb_id}/videos", params={"language": lang})
+        if data and data.get('results'):
+            for video in data['results']:
+                if video.get('site') == 'YouTube' and video.get('type') == 'Trailer':
+                    return video.get('key')
+    return None
+
 
 async def import_movie_and_relations(tmdb_movie_id: int, session: AsyncSession = None):
     """Выполняет полную транзакцию импорта фильма, актеров и жанров."""
@@ -61,7 +72,10 @@ async def import_movie_and_relations(tmdb_movie_id: int, session: AsyncSession =
     print(f"--- 1. Starting Import for TMDB ID: {tmdb_movie_id} ---")
 
     raw_movie_data = await fetch_tmdb_data(f"/movie/{tmdb_movie_id}")
+    trailer_key = await get_trailer_from_tmdb(tmdb_movie_id)
     movie_create_data = transform_tmdb_movie(raw_movie_data)
+    if movie_create_data:
+        movie_create_data.trailer_url = trailer_key
     raw_credits_data = await fetch_tmdb_data(f"/movie/{tmdb_movie_id}/credits")
     actors_data = []
     if raw_credits_data and raw_credits_data.get('cast'):

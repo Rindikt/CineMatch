@@ -1,15 +1,11 @@
-
-
 from fastapi import APIRouter, Query, HTTPException, status, Depends
 from celery.result import AsyncResult
 
 from core.models import User as UserModel
 from worker.tasks import (import_single_movie,
-                          sync_popular_movies_by_page,
                           initial_load,
                           sync_oldest_movies,
                           update_single_movie_stats)
-from api.services.movies import MovieService
 from core.auth import get_current_admin
 
 router = APIRouter(

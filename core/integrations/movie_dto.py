@@ -5,6 +5,9 @@ from core.schemas.movies import MovieCreate
 from core.models.movies import MediaType
 
 
+
+
+
 def transform_tmdb_movie(tmdb_data: Dict[str, Any]) -> Optional[MovieCreate]:
     """
     Преобразует JSON от TMDb в схему MovieCreate, очищая и маппируя поля.
@@ -62,5 +65,6 @@ def transform_tmdb_movie(tmdb_data: Dict[str, Any]) -> Optional[MovieCreate]:
         runtime_minutes=runtime,
         rating=rating,
         popularity=popularity,
-        poster_path=poster_path
+        poster_path=poster_path,
+        trailer_url=None
     )
